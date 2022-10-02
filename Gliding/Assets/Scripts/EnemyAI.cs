@@ -15,6 +15,9 @@ public class EnemyAI : MonoBehaviour
     public Vector3 walkPoint;
     bool walkPointSet;
     public float walkPointRange;
+    public float waitTime;
+    public float currentWaitTime;
+    bool canPatrol;
 
     [Header("Attacking")]
     public float timeBetweenAttacks;
@@ -37,7 +40,14 @@ public class EnemyAI : MonoBehaviour
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
-        if (!playerInSightRange && !playerInAttackRange)
+        currentWaitTime += Time.deltaTime;
+        if (currentWaitTime >= waitTime)
+        {
+            canPatrol = true;
+        }
+
+
+        if (!playerInSightRange && !playerInAttackRange && canPatrol)
         {
             Patrol();
         }
@@ -70,6 +80,8 @@ public class EnemyAI : MonoBehaviour
         if (distanceToWalkPoint.magnitude < 1f)
         {
             walkPointSet = false;
+            canPatrol = false;
+            currentWaitTime = 0;
         }
     }
 
