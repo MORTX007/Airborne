@@ -40,6 +40,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 aimTarget;
     private bool aiming;
 
+    // Shooting
+    [Header("Shooting")]
+    public Transform sphere;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -48,17 +52,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        CheckGrounded();
-
         // move
         MovePlayer();
 
-        // player rotation
-        Vector2 screenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
-        Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
-        Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask);
-        aimTarget = hit.point;
+        // player pointing
+        PlayerPointing();
 
+        // player rotation
         RotatePlayer();
 
         // jump
@@ -76,6 +76,14 @@ public class PlayerController : MonoBehaviour
         {
             CancelAim();
         }
+        
+        if (Input.GetMouseButtonDown(0) && aiming)
+        {
+            Shoot();
+        }
+
+        // check grounded
+        CheckGrounded();
 
         // realistic fall
         if (!groundedPlayer && playerVelocity.y < 0)
@@ -98,11 +106,20 @@ public class PlayerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
     }
 
+    private void PlayerPointing()
+    {
+        // where is player pointing
+        Vector2 screenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
+        Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
+        Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask);
+        aimTarget = hit.point;
+    }
+
     private void RotatePlayer()
     {
+        // follow cam rotation
         if (!aiming)
         {
-
             // rotate orientation
             Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
             orientation.forward = viewDir;
@@ -116,11 +133,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // aim cam rotation
         if (aiming)
         {
             // rotate player to face center of screen
-            aimTarget.y = transform.position.y;
-            Vector3 aimDir = (aimTarget - transform.position).normalized;
+            Vector3 aimPoint = aimTarget;
+            aimPoint.y = transform.position.y;
+            Vector3 aimDir = (aimPoint - transform.position).normalized;
             orientation.forward = aimDir;
 
             playerObj.forward = Vector3.Slerp(playerObj.forward, aimDir, aimRotationSpeed * Time.deltaTime);
@@ -145,9 +164,13 @@ public class PlayerController : MonoBehaviour
         aiming = false;
     }
 
+    private void Shoot()
+    {
+        sphere.position = aimTarget;
+    }
+
     private void CheckGrounded()
     {
-        // check grounded
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
