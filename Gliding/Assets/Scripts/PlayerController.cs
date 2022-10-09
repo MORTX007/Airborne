@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity;
     private bool groundedPlayer;
 
+    // Jump
     [Header("Jump")]
     public float jumpHeight;
     public float gravityValue;
@@ -27,7 +29,16 @@ public class PlayerController : MonoBehaviour
     // Rotation
     [Header("Rotation")]
     public Transform orientation;
-    public float rotationSpeed;
+    public float followRotationSpeed;
+    public float aimRotationSpeed;
+
+    // Aiming
+    [Header("Aiming")]
+    public CinemachineVirtualCamera followCam;
+    public CinemachineVirtualCamera aimCam;
+    public LayerMask aimLayerMask;
+    private Vector3 aimTarget;
+    private bool aiming;
 
     private void Start()
     {
@@ -43,12 +54,27 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
 
         // player rotation
+        Vector2 screenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
+        Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
+        Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask);
+        aimTarget = hit.point;
+
         RotatePlayer();
 
         // jump
         if (Input.GetKeyDown(KeyCode.Space) && groundedPlayer)
         {
             Jump();
+        }
+
+        // aim
+        if (Input.GetMouseButton(1))
+        {
+            StartAim();
+        }
+        else
+        {
+            CancelAim();
         }
 
         // realistic fall
@@ -74,16 +100,30 @@ public class PlayerController : MonoBehaviour
 
     private void RotatePlayer()
     {
-        // rotate orientation
-        Vector3 viewDir = transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z);
-        orientation.forward = viewDir.normalized;
-
-        // rotate player object
-        Vector3 inputDir = (orientation.forward * verticalInput) + (orientation.right * horizontalInput);
-
-        if (inputDir != Vector3.zero)
+        if (!aiming)
         {
-            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
+
+            // rotate orientation
+            Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
+            orientation.forward = viewDir;
+
+            // rotate player object
+            Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
+
+            if (inputDir != Vector3.zero)
+            {
+                playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir, followRotationSpeed * Time.deltaTime);
+            }
+        }
+
+        if (aiming)
+        {
+            // rotate player to face center of screen
+            aimTarget.y = transform.position.y;
+            Vector3 aimDir = (aimTarget - transform.position).normalized;
+            orientation.forward = aimDir;
+
+            playerObj.forward = Vector3.Slerp(playerObj.forward, aimDir, aimRotationSpeed * Time.deltaTime);
         }
     }
 
@@ -91,6 +131,18 @@ public class PlayerController : MonoBehaviour
     {
         // change height of player
         playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+    }
+
+    private void StartAim()
+    {
+        aimCam.gameObject.SetActive(true);
+        aiming = true;
+    }
+
+    private void CancelAim()
+    {
+        aimCam.gameObject.SetActive(false);
+        aiming = false;
     }
 
     private void CheckGrounded()

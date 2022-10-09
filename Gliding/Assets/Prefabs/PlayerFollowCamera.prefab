@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 1875257052166747095}
   - component: {fileID: 1875257052166747089}
   m_Layer: 0
-  m_Name: NormalCinemachine
+  m_Name: PlayerFollowCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
