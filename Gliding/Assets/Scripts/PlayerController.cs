@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
 
     private float horizontalInput;
     private float verticalInput;
+    private Vector3 move;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
 
@@ -43,6 +44,11 @@ public class PlayerController : MonoBehaviour
     // Shooting
     [Header("Shooting")]
     public Transform sphere;
+
+    //Animation
+    [Header("Animation")]
+    public Animator animator;
+    public float speedBlendTime;
 
     private void Start()
     {
@@ -90,6 +96,9 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity += transform.up * gravityValue * fallMultiplier;
         }
+
+        // animation
+        Animate();
     }
 
     private void MovePlayer()
@@ -97,7 +106,7 @@ public class PlayerController : MonoBehaviour
         // move input
         horizontalInput = Input.GetAxis("Horizontal"); 
         verticalInput = Input.GetAxis("Vertical");
-        var move = horizontalInput * orientation.right.normalized + verticalInput * orientation.forward.normalized;
+        move = horizontalInput * orientation.right.normalized + verticalInput * orientation.forward.normalized;
         move.y = 0;
         controller.Move(move * Time.deltaTime * playerSpeed);
         
@@ -176,5 +185,10 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity.y = 0f;
         }
+    }
+
+    private void Animate()
+    {
+        animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
     }
 }
