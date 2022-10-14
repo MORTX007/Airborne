@@ -19,19 +19,25 @@ public class PlayerController : MonoBehaviour
     private float verticalInput;
     private Vector3 move;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
+    private bool grounded;
 
     // Jump
     [Header("Jump")]
     public float jumpHeight;
-    public float gravityValue;
+    public float normalGravityValue;
     public float fallMultiplier;
+    private bool jumping;
 
     // Rotation
     [Header("Rotation")]
     public Transform orientation;
     public float followRotationSpeed;
     public float aimRotationSpeed;
+
+    // Gliding
+    [Header("Gliding")]
+    public float glidingGravityValue;
+    private bool gliding;
 
     // Aiming
     [Header("Aiming")]
@@ -68,7 +74,7 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
 
         // jump
-        if (Input.GetKeyDown(KeyCode.Space) && groundedPlayer)
+        if (Input.GetKeyDown(KeyCode.Space) && grounded)
         {
             Jump();
         }
@@ -92,9 +98,9 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
 
         // realistic fall
-        if (!groundedPlayer && playerVelocity.y < 0)
+        if (!grounded && playerVelocity.y < 0 && !gliding)
         {
-            playerVelocity += transform.up * gravityValue * fallMultiplier;
+            playerVelocity += transform.up * normalGravityValue * fallMultiplier;
         }
 
         // animation
@@ -110,8 +116,25 @@ public class PlayerController : MonoBehaviour
         move.y = 0;
         controller.Move(move * Time.deltaTime * playerSpeed);
         
+        // control gravity for gliding
+        if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded)
+        {
+            if (!gliding)
+            {
+                playerVelocity.y = 0f;
+            }
+
+            playerVelocity.y += glidingGravityValue * Time.deltaTime;
+            gliding = true;
+            jumping = false;
+        }
+        else
+        {
+            playerVelocity.y += normalGravityValue * Time.deltaTime;
+            gliding = false;
+        }
+
         // apply movement
-        playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
     }
 
@@ -158,7 +181,8 @@ public class PlayerController : MonoBehaviour
     private void Jump()
     {
         // change height of player
-        playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+        playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * normalGravityValue);
+        jumping = true;
     }
 
     private void StartAim()
@@ -180,15 +204,39 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGrounded()
     {
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+        grounded = controller.isGrounded;
+        if (grounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
+            jumping = false;
         }
     }
 
     private void Animate()
     {
-        animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
+        if (jumping)
+        {
+            animator.SetBool("Jumping", true);
+            animator.SetBool("Grounded", false);
+            animator.SetBool("Falling", false);
+
+
+            if (playerVelocity.y < 0f)
+            {
+                animator.SetBool("Falling", true);
+            }
+        }
+        if (grounded)
+        {
+            animator.SetBool("Grounded", true);
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Falling", false);
+        }
+        if (!jumping)
+        {
+            animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Falling", false);
+        }
     }
 }
