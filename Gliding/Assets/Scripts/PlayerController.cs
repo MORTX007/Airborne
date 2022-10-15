@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
 
     // Movement
     [Header("Movement")]
-    public float playerSpeed;
+    public float moveSpeed;
 
     private float horizontalInput;
     private float verticalInput;
@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
 
     // Gliding
     [Header("Gliding")]
+    public float glidingSpeed;
     public float glidingGravityValue;
     private bool gliding;
 
@@ -114,7 +115,20 @@ public class PlayerController : MonoBehaviour
         verticalInput = Input.GetAxis("Vertical");
         move = horizontalInput * orientation.right.normalized + verticalInput * orientation.forward.normalized;
         move.y = 0;
-        controller.Move(move * Time.deltaTime * playerSpeed);
+
+        // deciding speed based on movement type
+        var speed = 0f;
+        if (!gliding)
+        {
+            speed = moveSpeed;
+        }
+        else
+        {
+            speed = glidingSpeed;
+        }
+
+        // apply movement
+        controller.Move(move * Time.deltaTime * speed);
         
         // control gravity for gliding
         if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded)
@@ -134,7 +148,7 @@ public class PlayerController : MonoBehaviour
             gliding = false;
         }
 
-        // apply movement
+        // apply gravity
         controller.Move(playerVelocity * Time.deltaTime);
     }
 
@@ -209,6 +223,7 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity.y = 0f;
             jumping = false;
+            gliding = false;
         }
     }
 
@@ -219,24 +234,25 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Jumping", true);
             animator.SetBool("Grounded", false);
             animator.SetBool("Falling", false);
-
-
-            if (playerVelocity.y < 0f)
-            {
-                animator.SetBool("Falling", true);
-            }
+        }
+        if (playerVelocity.y < 0f)
+        {
+            animator.SetBool("Falling", true);
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Grounded", false);
         }
         if (grounded)
         {
             animator.SetBool("Grounded", true);
             animator.SetBool("Jumping", false);
             animator.SetBool("Falling", false);
-        }
-        if (!jumping)
-        {
-            animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
-            animator.SetBool("Jumping", false);
-            animator.SetBool("Falling", false);
+
+            if (!jumping)
+            {
+                animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
+                animator.SetBool("Jumping", false);
+                animator.SetBool("Falling", false);
+            }
         }
     }
 }

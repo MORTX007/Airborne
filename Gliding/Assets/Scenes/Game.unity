@@ -2242,14 +2242,14 @@ MonoBehaviour:
   controller: {fileID: 1500319225}
   playerObj: {fileID: 503802462}
   mainCamera: {fileID: 330585545}
-  playerSpeed: 5
+  moveSpeed: 5
   jumpHeight: 1.25
   normalGravityValue: -9.81
   fallMultiplier: 0.005
-  jumping: 0
   orientation: {fileID: 1710395535}
   followRotationSpeed: 7
   aimRotationSpeed: 10
+  glidingSpeed: 7
   glidingGravityValue: -0.5
   followCam: {fileID: 2033251118}
   aimCam: {fileID: 8771636040483114516}
@@ -2258,7 +2258,7 @@ MonoBehaviour:
     m_Bits: 192
   sphere: {fileID: 2016038272}
   animator: {fileID: 503802463}
-  speedBlendTime: 0.09
+  speedBlendTime: 0.03
 --- !u!143 &1500319225
 CharacterController:
   m_ObjectHideFlags: 0
