@@ -2242,15 +2242,15 @@ MonoBehaviour:
   controller: {fileID: 1500319225}
   playerObj: {fileID: 503802462}
   mainCamera: {fileID: 330585545}
-  moveSpeed: 5
+  moveSpeed: 7
   jumpHeight: 1.25
   normalGravityValue: -9.81
   fallMultiplier: 0.005
   orientation: {fileID: 1710395535}
   followRotationSpeed: 7
   aimRotationSpeed: 10
-  glidingSpeed: 7
-  glidingGravityValue: -0.5
+  glidingSpeed: 8
+  glidingGravityValue: -1
   followCam: {fileID: 2033251118}
   aimCam: {fileID: 8771636040483114516}
   aimLayerMask:
@@ -2258,7 +2258,8 @@ MonoBehaviour:
     m_Bits: 192
   sphere: {fileID: 2016038272}
   animator: {fileID: 503802463}
-  speedBlendTime: 0.03
+  followAniamtionBlendTime: 0.03
+  aimAniamtionBlendTime: 0.1
 --- !u!143 &1500319225
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2871,7 +2872,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2016038268}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
@@ -3054,6 +3055,21 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4054543414958003260, guid: bd3c47980815e4547b525b181566a278,
+        type: 3}
+      propertyPath: m_XDamping
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4054543414958003260, guid: bd3c47980815e4547b525b181566a278,
+        type: 3}
+      propertyPath: m_YDamping
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4054543414958003260, guid: bd3c47980815e4547b525b181566a278,
+        type: 3}
+      propertyPath: m_ZDamping
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 4054543415146245520, guid: bd3c47980815e4547b525b181566a278,
         type: 3}
       propertyPath: m_Name

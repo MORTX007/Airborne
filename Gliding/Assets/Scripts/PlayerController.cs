@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private float verticalInput;
     private Vector3 move;
     private Vector3 playerVelocity;
+    private bool moving;
     private bool grounded;
 
     // Jump
@@ -55,7 +56,8 @@ public class PlayerController : MonoBehaviour
     //Animation
     [Header("Animation")]
     public Animator animator;
-    public float speedBlendTime;
+    public float followAniamtionBlendTime;
+    public float aimAniamtionBlendTime;
 
     private void Start()
     {
@@ -67,6 +69,15 @@ public class PlayerController : MonoBehaviour
     {
         // move
         MovePlayer();
+
+        if (move.magnitude != 0)
+        {
+            moving = true;
+        }
+        else
+        {
+            moving = false;
+        }
 
         // player pointing
         PlayerPointing();
@@ -81,7 +92,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // aim
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) & !gliding)
         {
             StartAim();
         }
@@ -90,7 +101,7 @@ public class PlayerController : MonoBehaviour
             CancelAim();
         }
         
-        if (Input.GetMouseButtonDown(0) && aiming)
+        if (Input.GetMouseButtonDown(0) && aiming && !gliding)
         {
             Shoot();
         }
@@ -113,7 +124,7 @@ public class PlayerController : MonoBehaviour
         // move input
         horizontalInput = Input.GetAxis("Horizontal"); 
         verticalInput = Input.GetAxis("Vertical");
-        move = horizontalInput * orientation.right.normalized + verticalInput * orientation.forward.normalized;
+        move = horizontalInput * orientation.right + verticalInput * orientation.forward;
         move.y = 0;
 
         // deciding speed based on movement type
@@ -128,7 +139,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // apply movement
-        controller.Move(move * Time.deltaTime * speed);
+        controller.Move(Vector3.ClampMagnitude(move, 1f) * Time.deltaTime * speed);
         
         // control gravity for gliding
         if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded)
@@ -229,6 +240,29 @@ public class PlayerController : MonoBehaviour
 
     private void Animate()
     {
+        if (moving)
+        {
+            animator.SetBool("Moving", true);
+        }
+        else
+        {
+            animator.SetBool("Moving", false);
+        }
+
+        // Aiming Aniamtions
+        if (aiming)
+        {
+            animator.SetBool("Aiming", true);
+            animator.SetFloat("Aim Speed X", horizontalInput, aimAniamtionBlendTime, Time.deltaTime);
+            animator.SetFloat("Aim Speed Y", verticalInput, aimAniamtionBlendTime, Time.deltaTime);
+        }
+        else
+        {
+            animator.SetBool("Aiming", false);
+        }
+        
+
+        // Follow Animations
         if (jumping)
         {
             animator.SetBool("Jumping", true);
@@ -249,10 +283,23 @@ public class PlayerController : MonoBehaviour
 
             if (!jumping)
             {
-                animator.SetFloat("Speed", move.magnitude, speedBlendTime, Time.deltaTime);
+                animator.SetFloat("Follow Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
                 animator.SetBool("Jumping", false);
                 animator.SetBool("Falling", false);
             }
+        }
+
+        // Gliding
+        if (gliding)
+        {
+            animator.SetBool("Gliding", true);
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Falling", false);
+            animator.SetBool("Aiming", false);
+        }
+        else
+        {
+            animator.SetBool("Gliding", false);
         }
     }
 }
