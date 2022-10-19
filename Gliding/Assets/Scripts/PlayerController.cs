@@ -37,8 +37,15 @@ public class PlayerController : MonoBehaviour
 
     // Gliding
     [Header("Gliding")]
+    public CinemachineVirtualCamera glidingCam;
     public float glidingSpeed;
-    public float glidingGravityValue;
+    public float movingGlidingGravityValue;
+    public float freeFallGlidingGravityValue;
+    public float glidingHeight;
+    public LayerMask glidingLayerMask;
+    public float moveGlidingNoiseFreqValue;
+    public float freeFallGlidingNoiseFreqValue;
+    private bool canGlide;
     private bool gliding;
 
     // Aiming
@@ -140,22 +147,41 @@ public class PlayerController : MonoBehaviour
 
         // apply movement
         controller.Move(Vector3.ClampMagnitude(move, 1f) * Time.deltaTime * speed);
-        
-        // control gravity for gliding
-        if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded)
-        {
-            if (!gliding)
-            {
-                playerVelocity.y = 0f;
-            }
 
-            playerVelocity.y += glidingGravityValue * Time.deltaTime;
-            gliding = true;
-            jumping = false;
+        // if able to glide Check
+        if (!Physics.Raycast(playerObj.transform.position, -transform.up, glidingHeight, glidingLayerMask))
+        {
+            canGlide = true;
         }
         else
         {
+            canGlide = false;
+        }
+
+        // control gravity for gliding
+        if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded && canGlide)
+        {
+            glidingCam.gameObject.SetActive(true);
+
+            if (moving)
+            {
+                playerVelocity.y = movingGlidingGravityValue;
+                glidingCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = moveGlidingNoiseFreqValue;
+            }
+            else
+            {
+                playerVelocity.y = freeFallGlidingGravityValue;
+                glidingCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = freeFallGlidingNoiseFreqValue;
+            }
+
+            gliding = true;
+            jumping = false;
+        }
+        // control normal gravity
+        else
+        {
             playerVelocity.y += normalGravityValue * Time.deltaTime;
+            glidingCam.gameObject.SetActive(false);
             gliding = false;
         }
 
@@ -292,6 +318,7 @@ public class PlayerController : MonoBehaviour
         // Gliding
         if (gliding)
         {
+            animator.SetFloat("Follow Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
             animator.SetBool("Gliding", true);
             animator.SetBool("Jumping", false);
             animator.SetBool("Falling", false);
