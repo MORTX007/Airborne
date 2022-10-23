@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     public LayerMask glidingLayerMask;
     public float moveGlidingNoiseFreqValue;
     public float freeFallGlidingNoiseFreqValue;
+    public List<GameObject> trails;
     private bool canGlide;
     private bool gliding;
 
@@ -174,6 +175,12 @@ public class PlayerController : MonoBehaviour
                 glidingCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = freeFallGlidingNoiseFreqValue;
             }
 
+            // enable gliding trails
+            foreach (GameObject trail in trails)
+            {
+                trail.SetActive(true);
+            }
+
             gliding = true;
             jumping = false;
         }
@@ -183,6 +190,12 @@ public class PlayerController : MonoBehaviour
             playerVelocity.y += normalGravityValue * Time.deltaTime;
             glidingCam.gameObject.SetActive(false);
             gliding = false;
+
+            // disable gliding trails
+            foreach (GameObject trail in trails)
+            {
+                trail.SetActive(false);
+            }
         }
 
         // apply gravity
