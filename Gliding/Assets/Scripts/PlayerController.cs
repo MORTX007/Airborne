@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     public Transform playerObj;
     public Camera mainCamera;
 
+    // Camera
+    [Header("Camera")]
+    public CinemachineVirtualCamera followCam;
+
     // Movement
     [Header("Movement")]
     public float moveSpeed;
@@ -49,18 +53,6 @@ public class PlayerController : MonoBehaviour
     private bool canGlide;
     private bool gliding;
 
-    // Aiming
-    [Header("Aiming")]
-    public CinemachineVirtualCamera followCam;
-    public CinemachineVirtualCamera aimCam;
-    public LayerMask aimLayerMask;
-    private Vector3 aimTarget;
-    private bool aiming;
-
-    // Shooting
-    [Header("Shooting")]
-    public Transform sphere;
-
     //Animation
     [Header("Animation")]
     public Animator animator;
@@ -87,9 +79,6 @@ public class PlayerController : MonoBehaviour
             moving = false;
         }
 
-        // player pointing
-        PlayerPointing();
-
         // player rotation
         RotatePlayer();
 
@@ -97,21 +86,6 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && grounded)
         {
             Jump();
-        }
-
-        // aim
-        if (Input.GetMouseButton(1) & !gliding)
-        {
-            StartAim();
-        }
-        else
-        {
-            CancelAim();
-        }
-        
-        if (Input.GetMouseButtonDown(0) && aiming && !gliding)
-        {
-            Shoot();
         }
 
         // check grounded
@@ -202,43 +176,18 @@ public class PlayerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
     }
 
-    private void PlayerPointing()
-    {
-        // where is player pointing
-        Vector2 screenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
-        Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
-        Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask);
-        aimTarget = hit.point;
-    }
-
     private void RotatePlayer()
     {
-        // follow cam rotation
-        if (!aiming)
+        // rotate orientation
+        Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
+        orientation.forward = viewDir;
+
+        // rotate player object
+        Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
+
+        if (inputDir != Vector3.zero)
         {
-            // rotate orientation
-            Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
-            orientation.forward = viewDir;
-
-            // rotate player object
-            Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
-
-            if (inputDir != Vector3.zero)
-            {
-                playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir, followRotationSpeed * Time.deltaTime);
-            }
-        }
-
-        // aim cam rotation
-        if (aiming)
-        {
-            // rotate player to face center of screen
-            Vector3 aimPoint = aimTarget;
-            aimPoint.y = transform.position.y;
-            Vector3 aimDir = (aimPoint - transform.position).normalized;
-            orientation.forward = aimDir;
-
-            playerObj.forward = Vector3.Slerp(playerObj.forward, aimDir, aimRotationSpeed * Time.deltaTime);
+            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir, followRotationSpeed * Time.deltaTime);
         }
     }
 
@@ -247,23 +196,6 @@ public class PlayerController : MonoBehaviour
         // change height of player
         playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * normalGravityValue);
         jumping = true;
-    }
-
-    private void StartAim()
-    {
-        aimCam.gameObject.SetActive(true);
-        aiming = true;
-    }
-
-    private void CancelAim()
-    {
-        aimCam.gameObject.SetActive(false);
-        aiming = false;
-    }
-
-    private void Shoot()
-    {
-        sphere.position = aimTarget;
     }
 
     private void CheckGrounded()
@@ -279,6 +211,7 @@ public class PlayerController : MonoBehaviour
 
     private void Animate()
     {
+        // Movement Aniamtion
         if (moving)
         {
             animator.SetBool("Moving", true);
@@ -288,20 +221,6 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        // Aiming Aniamtions
-        if (aiming)
-        {
-            animator.SetBool("Aiming", true);
-            animator.SetFloat("Aim Speed X", horizontalInput, aimAniamtionBlendTime, Time.deltaTime);
-            animator.SetFloat("Aim Speed Y", verticalInput, aimAniamtionBlendTime, Time.deltaTime);
-        }
-        else
-        {
-            animator.SetBool("Aiming", false);
-        }
-        
-
-        // Follow Animations
         if (jumping)
         {
             animator.SetBool("Jumping", true);
