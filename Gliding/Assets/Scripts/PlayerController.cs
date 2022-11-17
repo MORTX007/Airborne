@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     // Camera
     [Header("Camera")]
     public CinemachineVirtualCamera followCam;
+    public CinemachineVirtualCamera glidingCam;
 
     // Movement
     [Header("Movement")]
@@ -41,17 +42,14 @@ public class PlayerController : MonoBehaviour
 
     // Gliding
     [Header("Gliding")]
-    public CinemachineVirtualCamera glidingCam;
     public float glidingSpeed;
-    public float movingGlidingGravityValue;
-    public float freeFallGlidingGravityValue;
     public float glidingHeight;
+    public float glidingYOffset;
     public LayerMask glidingLayerMask;
-    public float moveGlidingNoiseFreqValue;
-    public float freeFallGlidingNoiseFreqValue;
     public List<GameObject> trails;
     private bool canGlide;
     private bool gliding;
+    private bool wasGliding;
 
     //Animation
     [Header("Animation")]
@@ -109,45 +107,31 @@ public class PlayerController : MonoBehaviour
         move = horizontalInput * orientation.right + verticalInput * orientation.forward;
         move.y = 0;
 
-        // deciding speed based on movement type
-        var speed = 0f;
+        // apply movement
         if (!gliding)
         {
-            speed = moveSpeed;
+            controller.Move(Vector3.ClampMagnitude(move, 1f) * moveSpeed * Time.deltaTime);
         }
         else
         {
-            speed = glidingSpeed;
+            controller.Move(orientation.forward * glidingSpeed * Time.deltaTime);
         }
-
-        // apply movement
-        controller.Move(Vector3.ClampMagnitude(move, 1f) * Time.deltaTime * speed);
 
         // if able to glide Check
         if (!Physics.Raycast(playerObj.transform.position, -transform.up, glidingHeight, glidingLayerMask))
         {
             canGlide = true;
         }
-        else
+        else if (Physics.Raycast(playerObj.transform.position, -transform.up, 3f, glidingLayerMask))
         {
             canGlide = false;
         }
 
-        // control gravity for gliding
-        if (Input.GetKey(KeyCode.Space) && playerVelocity.y <= 0 && !grounded && canGlide)
+        // gliding
+        if (playerVelocity.y <= 0 && !grounded && canGlide)
         {
             glidingCam.gameObject.SetActive(true);
-
-            if (moving)
-            {
-                playerVelocity.y = movingGlidingGravityValue;
-                glidingCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = moveGlidingNoiseFreqValue;
-            }
-            else
-            {
-                playerVelocity.y = freeFallGlidingGravityValue;
-                glidingCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = freeFallGlidingNoiseFreqValue;
-            }
+            playerVelocity.y = 0f;
 
             // enable gliding trails
             foreach (GameObject trail in trails)
@@ -157,8 +141,9 @@ public class PlayerController : MonoBehaviour
 
             gliding = true;
             jumping = false;
+            wasGliding = true;
         }
-        // control normal gravity
+        // normal
         else
         {
             playerVelocity.y += normalGravityValue * Time.deltaTime;
@@ -178,16 +163,30 @@ public class PlayerController : MonoBehaviour
 
     private void RotatePlayer()
     {
-        // rotate orientation
-        Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
-        orientation.forward = viewDir;
-
         // rotate player object
-        Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
-
-        if (inputDir != Vector3.zero)
+        if (!gliding)
         {
+            // rotate orientation
+            Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
+            orientation.forward = viewDir;
+
+            Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
+
             playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir, followRotationSpeed * Time.deltaTime);
+
+            if (wasGliding)
+            {
+                playerObj.forward = orientation.forward;
+                wasGliding = false;
+            }
+        }
+        else
+        {
+            // rotate orientation
+            Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y + glidingYOffset, mainCamera.transform.position.z)).normalized;
+            orientation.forward = viewDir;
+
+            playerObj.forward = Vector3.Slerp(playerObj.forward, orientation.forward, followRotationSpeed * Time.deltaTime);
         }
     }
 
@@ -254,7 +253,6 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Gliding", true);
             animator.SetBool("Jumping", false);
             animator.SetBool("Falling", false);
-            animator.SetBool("Aiming", false);
         }
         else
         {

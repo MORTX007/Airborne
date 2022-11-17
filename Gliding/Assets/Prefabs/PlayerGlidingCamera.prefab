@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &489389482842331942
 Transform:
   m_ObjectHideFlags: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children:
   - {fileID: 489389483174224526}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &489389482842331943
 MonoBehaviour:
@@ -63,7 +63,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7771084, y: 1}
+    m_SensorSize: {x: 1.7777778, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 1
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_TargetMovementOnly: 1
   m_ScreenX: 0.5
   m_ScreenY: 0.54
-  m_CameraDistance: 12.2
+  m_CameraDistance: 6.4
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_DeadZoneDepth: 0
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_NoiseProfile: {fileID: 11400000, guid: 20a705aea2d80e0478fb89b6f43d8530, type: 2}
   m_PivotOffset: {x: 0, y: 0, z: 0}
   m_AmplitudeGain: 1
-  m_FrequencyGain: 0.4
+  m_FrequencyGain: 1
   mNoiseOffsets: {x: -765.3436, y: 412.4553, z: 513.0689}
 --- !u!114 &489389483174224521
 MonoBehaviour:
@@ -232,7 +232,7 @@ MonoBehaviour:
     m_InputAxisValue: 0
     m_InvertInput: 1
     m_MinValue: -70
-    m_MaxValue: 70
+    m_MaxValue: 80
     m_Wrap: 0
     m_Recentering:
       m_enabled: 0
