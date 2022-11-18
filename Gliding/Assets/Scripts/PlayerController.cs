@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
 {
     // Player
     [Header("Player")]
     public CharacterController controller;
-    public Transform playerObj;
     public Camera mainCamera;
 
     // Camera
     [Header("Camera")]
     public CinemachineVirtualCamera followCam;
+    public CinemachineVirtualCamera aimCam;
     public CinemachineVirtualCamera glidingCam;
 
     // Movement
@@ -39,6 +40,13 @@ public class PlayerController : MonoBehaviour
     public Transform orientation;
     public float followRotationSpeed;
     public float aimRotationSpeed;
+
+    // Aim
+    [Header("Aiming")]
+    public Rig aimRig;
+    public Transform aimBall;
+    public LayerMask aimLayerMask;
+    private bool aiming;
 
     // Gliding
     [Header("Gliding")]
@@ -86,6 +94,16 @@ public class PlayerController : MonoBehaviour
             Jump();
         }
 
+        // aim
+        if (Input.GetMouseButton(1))
+        {
+            StartAim();
+        }
+        else
+        {
+            CancelAim();
+        }
+
         // check grounded
         CheckGrounded();
 
@@ -118,17 +136,17 @@ public class PlayerController : MonoBehaviour
         }
 
         // if able to glide Check
-        if (!Physics.Raycast(playerObj.transform.position, -transform.up, glidingHeight, glidingLayerMask))
+        if (!Physics.Raycast(transform.position, -transform.up, glidingHeight, glidingLayerMask))
         {
             canGlide = true;
         }
-        else if (Physics.Raycast(playerObj.transform.position, -transform.up, 3f, glidingLayerMask))
+        else if (Physics.Raycast(transform.position, -transform.up, 3f, glidingLayerMask))
         {
             canGlide = false;
         }
 
         // gliding
-        if (playerVelocity.y <= 0 && !grounded && canGlide)
+        if (playerVelocity.y <= 0 && !grounded && canGlide && !aiming)
         {
             glidingCam.gameObject.SetActive(true);
             playerVelocity.y = 0f;
@@ -164,7 +182,7 @@ public class PlayerController : MonoBehaviour
     private void RotatePlayer()
     {
         // rotate player object
-        if (!gliding)
+        if (!aiming && !gliding)
         {
             // rotate orientation
             Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z)).normalized;
@@ -172,21 +190,31 @@ public class PlayerController : MonoBehaviour
 
             Vector3 inputDir = ((orientation.forward * verticalInput) + (orientation.right * horizontalInput)).normalized;
 
-            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir, followRotationSpeed * Time.deltaTime);
+            transform.forward = Vector3.Slerp(transform.forward, inputDir, followRotationSpeed * Time.deltaTime);
 
             if (wasGliding)
             {
-                playerObj.forward = orientation.forward;
+                transform.forward = orientation.forward;
                 wasGliding = false;
             }
         }
-        else
+        else if (aiming)
+        {
+            Vector3 aimTarget = aimBall.transform.position;
+            aimTarget.y = transform.position.y;
+            Vector3 viewDir = (aimTarget - transform.position).normalized;
+            orientation.forward = viewDir;
+
+            transform.forward = Vector3.Slerp(transform.forward, viewDir, aimRotationSpeed * Time.deltaTime);
+
+        }
+        else if (gliding)
         {
             // rotate orientation
             Vector3 viewDir = (transform.position - new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y + glidingYOffset, mainCamera.transform.position.z)).normalized;
             orientation.forward = viewDir;
 
-            playerObj.forward = Vector3.Slerp(playerObj.forward, orientation.forward, followRotationSpeed * Time.deltaTime);
+            transform.forward = Vector3.Slerp(transform.forward, orientation.forward, followRotationSpeed * Time.deltaTime);
         }
     }
 
@@ -195,6 +223,20 @@ public class PlayerController : MonoBehaviour
         // change height of player
         playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * normalGravityValue);
         jumping = true;
+    }
+
+    private void StartAim()
+    {
+        aimCam.gameObject.SetActive(true);
+        aimRig.weight = 1f;
+        aiming = true;
+    }
+
+    private void CancelAim()
+    {
+        aimCam.gameObject.SetActive(false);
+        aimRig.weight = 0f;
+        aiming = false;
     }
 
     private void CheckGrounded()
