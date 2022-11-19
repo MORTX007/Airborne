@@ -63,13 +63,13 @@ MonoBehaviour:
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 10
   m_LookaheadIgnoreY: 0
-  m_XDamping: 0.2
-  m_YDamping: 0.2
-  m_ZDamping: 1
+  m_XDamping: 0.05
+  m_YDamping: 0.05
+  m_ZDamping: 0.1
   m_TargetMovementOnly: 1
   m_ScreenX: 0.24
   m_ScreenY: 0.54
-  m_CameraDistance: 2.04
+  m_CameraDistance: 2.49
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_DeadZoneDepth: 0
@@ -186,7 +186,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1875257052166747094
 Transform:
   m_ObjectHideFlags: 0
@@ -232,7 +232,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7779456, y: 1}
+    m_SensorSize: {x: 1.7776097, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 1

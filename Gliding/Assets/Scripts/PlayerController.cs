@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [Header("Player")]
     public CharacterController controller;
     public Camera mainCamera;
+    public Transform head;
 
     // Camera
     [Header("Camera")]
@@ -46,7 +47,13 @@ public class PlayerController : MonoBehaviour
     public Rig aimRig;
     public Transform aimBall;
     public LayerMask aimLayerMask;
+    public LineRenderer aimLine;
+    public Vector3 aimLineOffset;
     private bool aiming;
+
+    // Shoot
+    [Header("Shooting")]
+    public LineRenderer laserLine;
 
     // Gliding
     [Header("Gliding")]
@@ -95,13 +102,23 @@ public class PlayerController : MonoBehaviour
         }
 
         // aim
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) && !gliding)
         {
             StartAim();
         }
         else
         {
             CancelAim();
+        }
+
+        // shoot
+        if (Input.GetMouseButton(0) && aiming)
+        {
+            Shoot();
+        }
+        else
+        {
+            laserLine.gameObject.SetActive(false);
         }
 
         // check grounded
@@ -146,7 +163,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // gliding
-        if (playerVelocity.y <= 0 && !grounded && canGlide && !aiming)
+        if (playerVelocity.y <= 0 && !grounded && canGlide)
         {
             glidingCam.gameObject.SetActive(true);
             playerVelocity.y = 0f;
@@ -155,6 +172,11 @@ public class PlayerController : MonoBehaviour
             foreach (GameObject trail in trails)
             {
                 trail.SetActive(true);
+            }
+
+            if (aiming)
+            {
+                CancelAim();
             }
 
             gliding = true;
@@ -229,6 +251,11 @@ public class PlayerController : MonoBehaviour
     {
         aimCam.gameObject.SetActive(true);
         aimRig.weight = 1f;
+
+        aimLine.gameObject.SetActive(true);
+        aimLine.SetPosition(0, head.position + aimLineOffset);
+        aimLine.SetPosition(1, aimBall.position);
+
         aiming = true;
     }
 
@@ -236,7 +263,19 @@ public class PlayerController : MonoBehaviour
     {
         aimCam.gameObject.SetActive(false);
         aimRig.weight = 0f;
+
+        aimLine.gameObject.SetActive(false);
+
         aiming = false;
+    }
+
+    private void Shoot()
+    {
+        laserLine.gameObject.SetActive(true);
+        aimLine.gameObject.SetActive(false);
+
+        laserLine.SetPosition(0, head.position + aimLineOffset);
+        laserLine.SetPosition(1, aimBall.position);
     }
 
     private void CheckGrounded()
