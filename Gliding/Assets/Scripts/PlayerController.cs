@@ -54,6 +54,9 @@ public class PlayerController : MonoBehaviour
     // Shoot
     [Header("Shooting")]
     public LineRenderer laserLine;
+    public Light laserImpactLight;
+    public GameObject sparksPartSys;
+    public bool shooting;
 
     // Gliding
     [Header("Gliding")]
@@ -114,11 +117,19 @@ public class PlayerController : MonoBehaviour
         // shoot
         if (Input.GetMouseButton(0) && aiming)
         {
+            if (!shooting)
+            {
+                Instantiate(sparksPartSys, aimBall);
+            }
+
             Shoot();
         }
         else
         {
             laserLine.gameObject.SetActive(false);
+
+            shooting = false;
+            laserImpactLight.intensity = 0f;
         }
 
         // check grounded
@@ -253,6 +264,9 @@ public class PlayerController : MonoBehaviour
         aimRig.weight = 1f;
 
         aimLine.gameObject.SetActive(true);
+
+        RepositionAimBall();
+
         aimLine.SetPosition(0, head.position + aimLineOffset);
         aimLine.SetPosition(1, aimBall.position);
 
@@ -272,10 +286,31 @@ public class PlayerController : MonoBehaviour
     private void Shoot()
     {
         laserLine.gameObject.SetActive(true);
+        laserImpactLight.intensity = 4.5f;
         aimLine.gameObject.SetActive(false);
+
+        RepositionAimBall();
 
         laserLine.SetPosition(0, head.position + aimLineOffset);
         laserLine.SetPosition(1, aimBall.position);
+
+        shooting = true;
+    }
+
+    private bool RepositionAimBall()
+    {
+        Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
+        if (Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask))
+        {
+            aimBall.position = hit.point;
+            return true;
+        }
+        else
+        {
+            aimBall.position += mainCamera.transform.forward * 50f;
+            return false;
+        }
     }
 
     private void CheckGrounded()
@@ -291,7 +326,6 @@ public class PlayerController : MonoBehaviour
 
     private void Animate()
     {
-        // Movement Aniamtion
         if (moving)
         {
             animator.SetBool("Moving", true);
@@ -300,6 +334,8 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("Moving", false);
         }
+
+        // Follow Animation
 
         if (jumping)
         {
@@ -321,16 +357,28 @@ public class PlayerController : MonoBehaviour
 
             if (!jumping)
             {
-                animator.SetFloat("Follow Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
+                animator.SetFloat("Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
                 animator.SetBool("Jumping", false);
                 animator.SetBool("Falling", false);
             }
         }
 
-        // Gliding
+        // Aiming Animation
+        if (aiming)
+        {
+            animator.SetBool("Aiming", true);
+            animator.SetFloat("Input X", horizontalInput, aimAniamtionBlendTime, Time.deltaTime);
+            animator.SetFloat("Input Y", verticalInput, aimAniamtionBlendTime, Time.deltaTime);
+        }
+        else
+        {
+            animator.SetBool("Aiming", false);
+        }
+
+        // Gliding Animation
         if (gliding)
         {
-            animator.SetFloat("Follow Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
+            animator.SetFloat("Speed", move.magnitude, followAniamtionBlendTime, Time.deltaTime);
             animator.SetBool("Gliding", true);
             animator.SetBool("Jumping", false);
             animator.SetBool("Falling", false);
