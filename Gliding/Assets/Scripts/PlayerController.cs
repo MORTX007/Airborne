@@ -53,10 +53,13 @@ public class PlayerController : MonoBehaviour
 
     // Shoot
     [Header("Shooting")]
+    public float laserDamage;
+    public float laserRange;
     public LineRenderer laserLine;
     public Light laserImpactLight;
     public GameObject sparksPartSys;
     public bool shooting;
+    private RaycastHit hit;
 
     // Gliding
     [Header("Gliding")]
@@ -65,8 +68,11 @@ public class PlayerController : MonoBehaviour
     public float glidingYOffset;
     public LayerMask glidingLayerMask;
     public List<GameObject> trails;
+    public Transform glidingCheck1;
+    public Transform glidingCheck2;
     private bool canGlide;
-    private bool gliding;
+    private bool canInitJump;
+    public bool gliding;
     private bool wasGliding;
 
     //Animation
@@ -173,10 +179,18 @@ public class PlayerController : MonoBehaviour
             canGlide = false;
         }
 
+        if (!Physics.Raycast(glidingCheck1.position, -glidingCheck1.up, glidingHeight, glidingLayerMask) || !Physics.Raycast(glidingCheck2.position, -glidingCheck2.up, glidingHeight, glidingLayerMask))
+        {
+            canInitJump = true;
+        }
+        else if (Physics.Raycast(glidingCheck1.position, -glidingCheck1.up, 10f, glidingLayerMask) && Physics.Raycast(glidingCheck2.position, -glidingCheck2.up, 10f, glidingLayerMask))
+        {
+            canInitJump = false;
+        }
+
         // gliding
         if (playerVelocity.y <= 0 && !grounded && canGlide)
         {
-            glidingCam.gameObject.SetActive(true);
             playerVelocity.y = 0f;
 
             // enable gliding trails
@@ -185,14 +199,15 @@ public class PlayerController : MonoBehaviour
                 trail.SetActive(true);
             }
 
-            if (aiming)
-            {
-                CancelAim();
-            }
-
             gliding = true;
             jumping = false;
             wasGliding = true;
+        }
+        // init jump
+        else if (canInitJump && grounded && moving)
+        {
+            Jump();
+            glidingCam.gameObject.SetActive(true);
         }
         // normal
         else
@@ -285,11 +300,16 @@ public class PlayerController : MonoBehaviour
 
     private void Shoot()
     {
+        var targetHit = RepositionAimBall();
+
+        if (targetHit && hit.transform.gameObject.layer == LayerMask.NameToLayer("enemy"))
+        {
+            hit.transform.GetComponentInParent<EnemyManager>().TakeDamage(laserDamage);
+        }
+
         laserLine.gameObject.SetActive(true);
         laserImpactLight.intensity = 4.5f;
         aimLine.gameObject.SetActive(false);
-
-        RepositionAimBall();
 
         laserLine.SetPosition(0, head.position + aimLineOffset);
         laserLine.SetPosition(1, aimBall.position);
@@ -301,14 +321,14 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
-        if (Physics.Raycast(ray, out RaycastHit hit, 999f, aimLayerMask))
+        if (Physics.Raycast(ray, out hit, 999f, aimLayerMask))
         {
             aimBall.position = hit.point;
             return true;
         }
         else
         {
-            aimBall.position += mainCamera.transform.forward * 50f;
+            aimBall.localPosition = new Vector3(0, 0, laserRange);
             return false;
         }
     }

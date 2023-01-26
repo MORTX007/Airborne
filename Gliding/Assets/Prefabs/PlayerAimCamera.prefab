@@ -67,7 +67,7 @@ MonoBehaviour:
   m_YDamping: 0.05
   m_ZDamping: 0.1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.24
+  m_ScreenX: 0.29
   m_ScreenY: 0.54
   m_CameraDistance: 2.49
   m_DeadZoneWidth: 0
@@ -123,7 +123,7 @@ MonoBehaviour:
   m_VerticalAxis:
     Value: 0
     m_SpeedMode: 1
-    m_MaxSpeed: 0.5
+    m_MaxSpeed: 0.2
     m_AccelTime: 0.2
     m_DecelTime: 0.2
     m_InputAxisName: Mouse Y
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_HorizontalAxis:
     Value: 0
     m_SpeedMode: 1
-    m_MaxSpeed: 1.25
+    m_MaxSpeed: 1
     m_AccelTime: 0.2
     m_DecelTime: 0.2
     m_InputAxisName: Mouse X
@@ -201,7 +201,7 @@ Transform:
   m_Children:
   - {fileID: 1875257051953334910}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 37.721, y: 0, z: 0}
 --- !u!114 &1875257052166747095
 MonoBehaviour:
