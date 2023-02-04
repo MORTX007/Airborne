@@ -120,7 +120,7 @@ public class EnemyManager : MonoBehaviour
             // attack code
             foreach(Transform weapon in weapons)
             {
-                Instantiate(bulletProjectile, weapon.transform.position, transform.rotation);
+                Instantiate(bulletProjectile, weapon.transform.position, transform.rotation, transform);
             }
 
             alreadyAttacked = true;

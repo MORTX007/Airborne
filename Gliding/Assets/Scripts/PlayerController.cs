@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,6 +18,15 @@ public class PlayerController : MonoBehaviour
     public CinemachineVirtualCamera followCam;
     public CinemachineVirtualCamera aimCam;
     public CinemachineVirtualCamera glidingCam;
+
+    // Health
+    [Header("Health")]
+    public float maxHealth;
+    public float currentHealth;
+    public Slider healthBarSlider;
+    public float healthBarAnimSpeed;
+    private bool animateHealthBar;
+    private float currentVelocity = 0f;
 
     // Movement
     [Header("Movement")]
@@ -85,6 +95,10 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        currentHealth = maxHealth;
+        healthBarSlider.maxValue = maxHealth;
+        healthBarSlider.value = maxHealth;
     }
 
     private void Update()
@@ -136,6 +150,16 @@ public class PlayerController : MonoBehaviour
 
             shooting = false;
             laserImpactLight.intensity = 0f;
+        }
+
+        // animate health bar
+        if (animateHealthBar && healthBarSlider.value != currentHealth)
+        {
+            healthBarSlider.value = Mathf.SmoothDamp(healthBarSlider.value, currentHealth, ref currentVelocity, healthBarAnimSpeed * Time.deltaTime);
+        }
+        else if (healthBarSlider.value == currentHealth)
+        {
+            animateHealthBar = true;
         }
 
         // check grounded
@@ -342,6 +366,12 @@ public class PlayerController : MonoBehaviour
             jumping = false;
             gliding = false;
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        animateHealthBar = true;
     }
 
     private void Animate()

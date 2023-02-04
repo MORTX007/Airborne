@@ -148,13 +148,14 @@ MonoBehaviour:
   - {fileID: 70307989}
   - {fileID: 390026255}
   maxTimeBetweenAttacks: 6
-  rotSpeed: 3
+  rotSpeed: 2
   maxHealth: 300
   currentHealth: 0
   sightRange: 15
   optimalRange: 5
   playerInSightRange: 0
   playerInOptimalRange: 0
+  attacked: 0
   hoverSpeed: 0.7
   hoverAmp: 0.3
 --- !u!1 &5714945748477616917

@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class BulletManager : MonoBehaviour
 {
-    private Rigidbody rb;
+    protected Rigidbody rb;
 
     private Transform bulletPool;
 
+    public float damage;
     public float speed;
     public float life;
 
@@ -24,14 +25,19 @@ public class BulletManager : MonoBehaviour
         transform.parent = bulletPool;
     }
 
-    private void Update()
+    void Update()
     {
         rb.AddForce(transform.forward * speed * Time.deltaTime, ForceMode.Impulse);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") || other.CompareTag("Enemy") || other.CompareTag("Environment"))
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<PlayerController>().TakeDamage(damage);
+            Destroy(gameObject);
+        }
+        else if (other.CompareTag("Enemy") || other.CompareTag("Environment"))
         {
             Destroy(gameObject);
         }
