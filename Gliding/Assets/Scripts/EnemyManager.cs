@@ -41,6 +41,7 @@ public class EnemyManager : MonoBehaviour
     [Header("Animations")]
     public float hoverSpeed;
     public float hoverAmp;
+    public Animator animator;
     private float startYPos;
 
     private void Start()
@@ -117,6 +118,8 @@ public class EnemyManager : MonoBehaviour
 
         if (!alreadyAttacked)
         {
+            animator.SetBool("Shoot", true);
+
             // attack code
             foreach(Transform weapon in weapons)
             {
@@ -126,6 +129,10 @@ public class EnemyManager : MonoBehaviour
             alreadyAttacked = true;
             // interval in between attacks
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
+        }
+        else
+        {
+            animator.SetBool("Shoot", false);
         }
     }
 

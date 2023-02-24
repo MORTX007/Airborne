@@ -1,8 +1,14 @@
 fileFormatVersion: 2
-guid: 5facca64349af79449c179ccc1791f87
+guid: f5254cbb93ad16d47ab613fd6d3b33bf
 ModelImporter:
   serializedVersion: 22103
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 8779589811281660841
+    second: Armature|Light Weight Drone Recoil
+  - first:
+      74: 5716725899512597863
+    second: Armature|Light Weight Drone Shoot
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -98,7 +104,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0

@@ -65,9 +65,14 @@ public class PlayerController : MonoBehaviour
     [Header("Shooting")]
     public float laserDamage;
     public float laserRange;
+    public float maxLaserAmount;
+    public float currentLaserAmount;
+    public float laserUsage;
+    public float laserGain;
     public LineRenderer laserLine;
     public Light laserImpactLight;
     public GameObject sparksPartSys;
+    public Slider laserSlider;
     public bool shooting;
     private RaycastHit hit;
 
@@ -99,6 +104,10 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
         healthBarSlider.maxValue = maxHealth;
         healthBarSlider.value = maxHealth;
+
+        currentLaserAmount = maxLaserAmount;
+        laserSlider.maxValue = maxLaserAmount;
+        laserSlider.value = maxLaserAmount;
     }
 
     private void Update()
@@ -135,7 +144,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // shoot
-        if (Input.GetMouseButton(0) && aiming)
+        if (Input.GetMouseButton(0) && currentLaserAmount > 0 && aiming)
         {
             if (!shooting)
             {
@@ -161,6 +170,9 @@ public class PlayerController : MonoBehaviour
         {
             animateHealthBar = true;
         }
+
+        // animate laser bar
+        laserSlider.value = currentLaserAmount;
 
         // check grounded
         CheckGrounded();
@@ -309,6 +321,13 @@ public class PlayerController : MonoBehaviour
         aimLine.SetPosition(0, head.position + aimLineOffset);
         aimLine.SetPosition(1, aimBall.position);
 
+        var targetHit = RepositionAimBall();
+
+        if (targetHit && hit.transform.gameObject.layer == LayerMask.NameToLayer("charging station") && currentLaserAmount < maxLaserAmount)
+        {
+            currentLaserAmount += laserGain;
+        }
+
         aiming = true;
     }
 
@@ -337,6 +356,15 @@ public class PlayerController : MonoBehaviour
 
         laserLine.SetPosition(0, head.position + aimLineOffset);
         laserLine.SetPosition(1, aimBall.position);
+
+        if (currentLaserAmount - laserUsage >= 0)
+        {
+            currentLaserAmount -= laserUsage;
+        }
+        else
+        {
+            currentLaserAmount = 0;
+        }
 
         shooting = true;
     }

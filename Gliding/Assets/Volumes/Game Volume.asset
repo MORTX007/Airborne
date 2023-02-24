@@ -15,7 +15,7 @@ MonoBehaviour:
   active: 1
   temperature:
     m_OverrideState: 1
-    m_Value: -7
+    m_Value: 15
   tint:
     m_OverrideState: 0
     m_Value: 0
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: SampleSceneProfile
+  m_Name: Game Volume
   m_EditorClassIdentifier: 
   components:
   - {fileID: 849379129802519247}
