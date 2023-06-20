@@ -6,7 +6,7 @@ public class BulletManager : MonoBehaviour
 {
     protected Rigidbody rb;
 
-    private Transform bulletPool;
+    private Transform disposablePool;
 
     public float damage;
     public float speed;
@@ -20,9 +20,9 @@ public class BulletManager : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        bulletPool = GameObject.Find("Bullet Pool").transform;
+        disposablePool = GameObject.Find("Disposable Pool").transform;
 
-        transform.parent = bulletPool;
+        transform.parent = disposablePool;
     }
 
     void Update()
@@ -35,6 +35,7 @@ public class BulletManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.GetComponent<PlayerController>().TakeDamage(damage);
+            other.GetComponent<PlayerController>().ShakeCamera(1f, 10f, 0.1f);
             Destroy(gameObject);
         }
         else if (other.CompareTag("Enemy") || other.CompareTag("Environment"))

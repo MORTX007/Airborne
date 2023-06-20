@@ -6,24 +6,17 @@ using UnityEngine.AI;
 
 public class EnemyManager : MonoBehaviour
 {
-    private  NavMeshAgent agent;
-    private PlayerController player;
+    public  NavMeshAgent agent;
+    public PlayerController player;
 
     [Header("Patrolling")]
-    public LayerMask groundLayer, playerlayer;
+    public LayerMask groundLayer, playerLayer;
     public Vector3 walkPoint;
     public float walkPointRange;
     private bool walkPointSet;
 
-    [Header("Attacking")]
-    public GameObject bulletProjectile;
-    public float bulletSpeed;
-    public Transform[] weapons;
-    public float maxTimeBetweenAttacks;
+    [Header("Rotation")]
     public float rotSpeed;
-    private float timeBetweenAttacks;
-    private bool initalTurned;
-    private bool alreadyAttacked;
 
     [Header("Health")]
     public float maxHealth;
@@ -38,47 +31,32 @@ public class EnemyManager : MonoBehaviour
     public bool playerInOptimalRange;
     public bool attacked;
 
-    [Header("Animations")]
-    public float hoverSpeed;
-    public float hoverAmp;
-    public Animator animator;
-    private float startYPos;
-
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         player = FindObjectOfType<PlayerController>();
-
-        startYPos = transform.position.y;
 
         healthCanvas = transform.Find("Health Canvas").GetComponent<Canvas>();
         healthText = healthCanvas.transform.Find("Health Text").GetComponent<TextMeshProUGUI>();
 
         currentHealth = maxHealth;
         UpdateHealthUI();
-
-        timeBetweenAttacks = Random.Range(1, maxTimeBetweenAttacks);
-
-        hoverSpeed = Random.Range(0.1f, hoverSpeed);
-        hoverAmp = Random.Range(0.3f, hoverAmp);
     }
 
     private void Update()
     {
         // check if play in sight
-        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerlayer);
-        playerInOptimalRange = Physics.CheckSphere(transform.position, optimalRange, playerlayer);
+        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, playerLayer);
+        playerInOptimalRange = Physics.CheckSphere(transform.position, optimalRange, playerLayer);
 
         if ((playerInSightRange || attacked) && !player.gliding)
         {
-            Attack();
+            LookAtPlayer();
         }
         else
         {
             Patrol();
         }
-
-        Hover();
 
         MakeHealthCanvasFacePlayer();
     }
@@ -103,45 +81,7 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
-    private void Attack()
-    {
-        LookAtPlayer();
-
-        if (playerInOptimalRange)
-        {
-            agent.SetDestination(transform.position);
-        }
-        else
-        {
-            agent.SetDestination(player.transform.position);
-        }
-
-        if (!alreadyAttacked)
-        {
-            animator.SetBool("Shoot", true);
-
-            // attack code
-            foreach(Transform weapon in weapons)
-            {
-                Instantiate(bulletProjectile, weapon.transform.position, transform.rotation, transform);
-            }
-
-            alreadyAttacked = true;
-            // interval in between attacks
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
-        }
-        else
-        {
-            animator.SetBool("Shoot", false);
-        }
-    }
-
-    private void ResetAttack()
-    {
-        alreadyAttacked = false;
-    }
-
-    private void LookAtPlayer()
+    public void LookAtPlayer()
     {
         // smooth look at
         Vector3 dir = player.transform.position - transform.position;
@@ -171,12 +111,6 @@ public class EnemyManager : MonoBehaviour
             UpdateHealthUI();
         }
 
-        // die
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-
         attacked = true;
     }
 
@@ -189,15 +123,5 @@ public class EnemyManager : MonoBehaviour
     private void MakeHealthCanvasFacePlayer()
     {
         healthCanvas.transform.rotation = Quaternion.LookRotation(transform.position - Camera.main.transform.position);
-    }
-
-    private void Hover()
-    {
-        transform.position = new Vector3(transform.position.x, startYPos + Mathf.Sin(Time.time * hoverSpeed) * hoverAmp, transform.position.z);
-    }
-
-    private void Die()
-    {
-        Destroy(gameObject);
     }
 }

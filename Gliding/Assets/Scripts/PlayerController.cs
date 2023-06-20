@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     public CinemachineVirtualCamera followCam;
     public CinemachineVirtualCamera aimCam;
     public CinemachineVirtualCamera glidingCam;
+    private CinemachineVirtualCamera activeCam;
 
     // Health
     [Header("Health")]
@@ -90,6 +91,11 @@ public class PlayerController : MonoBehaviour
     public bool gliding;
     private bool wasGliding;
 
+    // Camera Shake
+    private float startingNoiseAmp;
+    private float startingNoiseFreq;
+    private float shakeTimer;
+
     //Animation
     [Header("Animation")]
     public Animator animator;
@@ -108,6 +114,9 @@ public class PlayerController : MonoBehaviour
         currentLaserAmount = maxLaserAmount;
         laserSlider.maxValue = maxLaserAmount;
         laserSlider.value = maxLaserAmount;
+
+        startingNoiseAmp = followCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain;
+        startingNoiseFreq = followCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain;
     }
 
     private void Update()
@@ -183,6 +192,12 @@ public class PlayerController : MonoBehaviour
             playerVelocity += transform.up * normalGravityValue * fallMultiplier;
         }
 
+        // change active cam
+        UpdateActiveCam();
+
+        // shake timer
+        ShakeTimer();
+
         // animation
         Animate();
     }
@@ -190,7 +205,7 @@ public class PlayerController : MonoBehaviour
     private void MovePlayer()
     {
         // move input
-        horizontalInput = Input.GetAxis("Horizontal"); 
+        horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
         move = horizontalInput * orientation.right + verticalInput * orientation.forward;
         move.y = 0;
@@ -400,6 +415,47 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth -= damage;
         animateHealthBar = true;
+    }
+
+    private void UpdateActiveCam()
+    {
+        activeCam = followCam;
+        if (aimCam.gameObject.activeSelf)
+        {
+            activeCam = aimCam;
+        }
+        else if (glidingCam.gameObject.activeSelf)
+        {
+            activeCam = glidingCam;
+        }
+    }
+
+    public void ShakeCamera(float amp, float freq, float time)
+    {
+        CinemachineBasicMultiChannelPerlin perlin = activeCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+        if (amp >= perlin.m_AmplitudeGain || freq >= perlin.m_FrequencyGain)
+        {
+            perlin.m_AmplitudeGain = amp;
+            perlin.m_FrequencyGain = freq;
+            shakeTimer = time;
+        }
+    }
+
+    private void ShakeTimer()
+    {
+        if (shakeTimer > 0)
+        {
+            shakeTimer -= Time.deltaTime;
+        }
+
+        if (shakeTimer <= 0f)
+        {
+            CinemachineBasicMultiChannelPerlin perlin = activeCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+            perlin.m_AmplitudeGain = Mathf.Lerp(perlin.m_AmplitudeGain, startingNoiseAmp, 0.01f);
+            perlin.m_FrequencyGain = Mathf.Lerp(perlin.m_FrequencyGain, startingNoiseFreq, 0.01f);
+        }
     }
 
     private void Animate()

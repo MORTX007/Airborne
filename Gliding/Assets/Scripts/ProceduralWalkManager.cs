@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ProceduralWalkManager : MonoBehaviour
 {
+    public Transform obj;
+
     [Header("Legs Info")]
     public Transform[] legTargets;
     public Transform[] legPosPredictors;
@@ -38,8 +40,6 @@ public class ProceduralWalkManager : MonoBehaviour
 
     private void Update()
     {
-        transform.GetComponent<Rigidbody>().velocity = transform.forward * 1f;
-
         // move and interpolate legs when predictor is far enough
         CheckAndRepositionTarget();
 
@@ -108,6 +108,7 @@ public class ProceduralWalkManager : MonoBehaviour
 
             // apply the normal to body to change its rotation
             body.up = Vector3.Lerp(body.up, avgNormal, bodyRotSmooth);
+            body.eulerAngles = new Vector3(body.eulerAngles.x, obj.eulerAngles.y, body.eulerAngles.z);
         }
     }
 }
