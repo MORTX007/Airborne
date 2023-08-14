@@ -453,8 +453,8 @@ public class PlayerController : MonoBehaviour
         {
             CinemachineBasicMultiChannelPerlin perlin = activeCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 
-            perlin.m_AmplitudeGain = Mathf.Lerp(perlin.m_AmplitudeGain, startingNoiseAmp, 0.01f);
-            perlin.m_FrequencyGain = Mathf.Lerp(perlin.m_FrequencyGain, startingNoiseFreq, 0.01f);
+            perlin.m_AmplitudeGain = Mathf.Lerp(perlin.m_AmplitudeGain, startingNoiseAmp, 0.008f);
+            perlin.m_FrequencyGain = Mathf.Lerp(perlin.m_FrequencyGain, startingNoiseFreq, 0.008f);
         }
     }
 
