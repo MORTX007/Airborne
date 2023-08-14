@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour
     public float laserGain;
     public LineRenderer laserLine;
     public Light laserImpactLight;
-    public GameObject sparksPartSys;
+    public ParticleSystem sparksPartSys;
     public Slider laserSlider;
     public bool shooting;
     private RaycastHit hit;
@@ -155,16 +155,13 @@ public class PlayerController : MonoBehaviour
         // shoot
         if (Input.GetMouseButton(0) && currentLaserAmount > 0 && aiming)
         {
-            if (!shooting)
-            {
-                Instantiate(sparksPartSys, aimBall);
-            }
-
             Shoot();
         }
         else
         {
             laserLine.gameObject.SetActive(false);
+
+            sparksPartSys.Stop();
 
             shooting = false;
             laserImpactLight.intensity = 0f;
@@ -371,6 +368,8 @@ public class PlayerController : MonoBehaviour
 
         laserLine.SetPosition(0, head.position + aimLineOffset);
         laserLine.SetPosition(1, aimBall.position);
+
+        sparksPartSys.Play();
 
         if (currentLaserAmount - laserUsage >= 0)
         {
