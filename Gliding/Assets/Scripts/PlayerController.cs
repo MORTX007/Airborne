@@ -242,7 +242,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (laserShooter.aiming)
         {
-            Vector3 aimTarget = laserShooter.initAimBall.transform.position;
+            Vector3 aimTarget = laserShooter.aimBalls[0].transform.position;
             aimTarget.y = transform.position.y;
             Vector3 viewDir = (aimTarget - transform.position).normalized;
             orientation.forward = viewDir;

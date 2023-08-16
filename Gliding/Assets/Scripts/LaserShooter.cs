@@ -10,14 +10,15 @@ public class LaserShooter : MonoBehaviour
     [Header("Player")]
     private PlayerController player;
     private Camera mainCamera;
+    public Transform aimBallPool;
     public Transform head;
 
     // Aim
     [Header("Aiming")]
     public Rig aimRig;
-    public Transform initAimBall;
-    public GameObject aimBallPrefab;
+    public List<Transform> aimBalls;
     public LayerMask aimLayerMask;
+    private Ray lastRayShot;
     public LineRenderer aimLine;
     public Vector3 aimLineOffset;
     public bool aiming;
@@ -26,21 +27,27 @@ public class LaserShooter : MonoBehaviour
     [Header("Shooting")]
     public float laserDamage;
     public float laserRange;
+    public List<Transform> hits;
+    private RaycastHit lastRayHit;
     public float maxLaserAmount;
     public float currentLaserAmount;
     public float laserUsage;
     public float laserGain;
     public LineRenderer laserLine;
     public Light laserImpactLight;
-    public ParticleSystem sparksPartSys;
     public Slider laserSlider;
     public bool shooting;
-    private RaycastHit hit;
 
     private void Start()
     {
         player = GetComponent<PlayerController>();
         mainCamera = Camera.main;
+
+        foreach (Transform aimBall in aimBallPool)
+        {
+            aimBalls.Add(aimBall);
+            aimBall.GetComponentInChildren<ParticleSystem>().Stop();
+        }
 
         currentLaserAmount = maxLaserAmount;
         laserSlider.maxValue = maxLaserAmount;
@@ -68,10 +75,61 @@ public class LaserShooter : MonoBehaviour
         {
             laserLine.gameObject.SetActive(false);
 
-            sparksPartSys.Stop();
+            aimBalls[0].GetComponentInChildren<ParticleSystem>().Stop();
             laserImpactLight.intensity = 0f;
 
             shooting = false;
+        }
+
+        // aim balls
+        if (shooting && hits.Count > 0)
+        {
+            for (int i = 0; i < aimBalls.Count; i++)
+            {
+                aimBalls[i].GetComponent<MeshRenderer>().enabled = i < hits.Count;
+            }
+        }
+        else if (!shooting)
+        {
+            foreach (Transform aimBall in aimBalls)
+            {
+                aimBall.GetComponent<MeshRenderer>().enabled = false;
+            }
+        }
+
+        if (aiming)
+        {
+            if (hits.Count > 0)
+            {
+                aimBalls[0].GetComponent<MeshRenderer>().enabled = true;
+            }
+            else if (hits.Count == 0)
+            {
+                aimBalls[0].GetComponent<MeshRenderer>().enabled = false;
+            }
+        }
+
+        // sparks
+        if (shooting)
+        {
+            for (int i = 0; i < aimBalls.Count; i++)
+            {
+                if (i < hits.Count && !aimBalls[i].GetComponentInChildren<ParticleSystem>().isEmitting)
+                {
+                    aimBalls[i].GetComponentInChildren<ParticleSystem>().Play();
+                }
+                else if (i >= hits.Count)
+                {
+                    aimBalls[i].GetComponentInChildren<ParticleSystem>().Stop();
+                }
+            }
+        }
+        else
+        {
+            foreach (Transform aimBall in aimBalls)
+            {
+                aimBall.GetComponentInChildren<ParticleSystem>().Stop();
+            }
         }
 
         // animate laser bar
@@ -81,18 +139,16 @@ public class LaserShooter : MonoBehaviour
     private void StartAim()
     {
         player.aimCam.gameObject.SetActive(true);
+        RepositionAimBall();
+
         aimRig.weight = 1f;
 
         aimLine.gameObject.SetActive(true);
 
-        RepositionAimBall();
-
         aimLine.SetPosition(0, head.position + aimLineOffset);
-        aimLine.SetPosition(1, initAimBall.position);
+        aimLine.SetPosition(1, aimBalls[0].position);
 
-        var targetHit = RepositionAimBall();
-
-        if (targetHit && hit.transform.gameObject.layer == LayerMask.NameToLayer("charging station") && currentLaserAmount < maxLaserAmount)
+        if (hits.Count > 0 && hits[0].gameObject.layer == LayerMask.NameToLayer("charging station") && currentLaserAmount < maxLaserAmount)
         {
             currentLaserAmount += laserGain * Time.deltaTime;
         }
@@ -112,23 +168,44 @@ public class LaserShooter : MonoBehaviour
 
     private void Shoot()
     {
-        var targetHit = RepositionAimBall();
+        RepositionAimBall();
 
-        if (targetHit && hit.transform.gameObject.layer == LayerMask.NameToLayer("enemy"))
+        if (hits.Count > 0 && hits[0].gameObject.layer == LayerMask.NameToLayer("enemy"))
         {
-            hit.transform.GetComponentInParent<EnemyManager>().TakeDamage(laserDamage);
+            hits[0].GetComponentInParent<EnemyManager>().TakeDamage(laserDamage);
         }
 
         laserLine.gameObject.SetActive(true);
         laserImpactLight.intensity = 4.5f;
         aimLine.gameObject.SetActive(false);
 
-        laserLine.SetPosition(0, head.position + aimLineOffset);
-        laserLine.SetPosition(1, initAimBall.position);
-
-        if (targetHit)
+        if (hits.Count > 0 && hits[0].gameObject.layer == LayerMask.NameToLayer("deflector"))
         {
-            sparksPartSys.Play();
+            if (hits[hits.Count - 1].gameObject.layer == LayerMask.NameToLayer("deflector"))
+            {
+                if (hits.Count < aimBalls.Count)
+                {
+                    laserLine.positionCount = hits.Count + 2;
+                }
+                else if (hits.Count == aimBalls.Count)
+                {
+                    laserLine.positionCount = hits.Count + 1;
+                }
+            }
+            else
+            {
+                laserLine.positionCount = hits.Count + 1;
+            }
+        }
+        else
+        {
+            laserLine.positionCount = 2;
+        }
+
+        laserLine.SetPosition(0, head.position + aimLineOffset);
+        for (int i = 1; i < laserLine.positionCount; i++)
+        {
+            laserLine.SetPosition(i, aimBalls[i - 1].position);
         }
 
         if (currentLaserAmount <= 0)
@@ -143,19 +220,55 @@ public class LaserShooter : MonoBehaviour
         shooting = true;
     }
 
-    private bool RepositionAimBall()
+    private void RepositionAimBall()
     {
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
+        RaycastHit hit;
+        hits.Clear();
         if (Physics.Raycast(ray, out hit, aimLayerMask))
         {
-            initAimBall.position = hit.point;
-            return true;
+            hits.Add(hit.transform);
+            aimBalls[0].position = hit.point;
+            lastRayShot = ray;
+            lastRayHit = hit;
+
+            // deflect laser
+            if (hits[0].gameObject.layer == LayerMask.NameToLayer("deflector"))
+            {
+                DeflectLaser();
+            }
         }
         else
         {
-            initAimBall.localPosition = new Vector3(0, 0, laserRange);
-            return false;
+            aimBalls[0].localPosition = new Vector3(0, 0, laserRange);
+        }
+    }
+
+    private void DeflectLaser()
+    {
+        int i = 1;
+        while (lastRayHit.transform.gameObject.layer == LayerMask.NameToLayer("deflector"))
+        {
+            Vector3 dir = Vector3.Reflect(lastRayShot.direction, lastRayHit.normal);
+            Ray ray = new Ray(lastRayHit.point, dir);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, aimLayerMask))
+            {
+                if (!hits.Contains(hit.transform))
+                {
+                    hits.Add(hit.transform);
+                }
+                aimBalls[i].position = hit.point;
+                lastRayShot = ray;
+                lastRayHit = hit;
+            }
+            else
+            {
+                aimBalls[i].position = ray.direction * laserRange;
+                return;
+            }
+            i++;
         }
     }
 }
