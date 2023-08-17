@@ -59,7 +59,7 @@ public class LaserShooter : MonoBehaviour
         // aim
         if (Input.GetMouseButton(1) && !player.gliding)
         {
-            StartAim();
+            StartCoroutine(StartAim());
         }
         else
         {
@@ -136,9 +136,10 @@ public class LaserShooter : MonoBehaviour
         laserSlider.value = currentLaserAmount;
     }
 
-    private void StartAim()
+    private IEnumerator StartAim()
     {
         player.aimCam.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.04f);
         RepositionAimBall();
 
         aimRig.weight = 1f;
@@ -170,9 +171,15 @@ public class LaserShooter : MonoBehaviour
     {
         RepositionAimBall();
 
-        if (hits.Count > 0 && hits[0].gameObject.layer == LayerMask.NameToLayer("enemy"))
+        if (hits.Count > 0)
         {
-            hits[0].GetComponentInParent<EnemyManager>().TakeDamage(laserDamage);
+            foreach (Transform hit in hits)
+            {
+                if (hit.gameObject.layer == LayerMask.NameToLayer("enemy"))
+                {
+                    hit.GetComponentInParent<EnemyManager>().TakeDamage(laserDamage);
+                }
+            }
         }
 
         laserLine.gameObject.SetActive(true);
@@ -265,7 +272,7 @@ public class LaserShooter : MonoBehaviour
             }
             else
             {
-                aimBalls[i].position = ray.direction * laserRange;
+                aimBalls[i].position = lastRayHit.point + (ray.direction * laserRange);
                 return;
             }
             i++;
