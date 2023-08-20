@@ -108,7 +108,7 @@ public class ProceduralWalkManager : MonoBehaviour
 
             // apply the normal to body to change its rotation
             body.up = Vector3.Lerp(body.up, avgNormal, bodyRotSmooth);
-            body.eulerAngles = new Vector3(body.eulerAngles.x, obj.eulerAngles.y, body.eulerAngles.z);
+            body.eulerAngles = new Vector3(-body.eulerAngles.x, obj.eulerAngles.y, body.eulerAngles.z);
         }
     }
 }

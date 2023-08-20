@@ -233,7 +233,7 @@ public class LaserShooter : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(screenCenterPoint);
         RaycastHit hit;
         hits.Clear();
-        if (Physics.Raycast(ray, out hit, aimLayerMask))
+        if (Physics.Raycast(ray, out hit, 999f, aimLayerMask))
         {
             hits.Add(hit.transform);
             aimBalls[0].position = hit.point;
@@ -260,7 +260,7 @@ public class LaserShooter : MonoBehaviour
             Vector3 dir = Vector3.Reflect(lastRayShot.direction, lastRayHit.normal);
             Ray ray = new Ray(lastRayHit.point, dir);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, aimLayerMask))
+            if (Physics.Raycast(ray, out hit, 999f, aimLayerMask))
             {
                 if (!hits.Contains(hit.transform))
                 {

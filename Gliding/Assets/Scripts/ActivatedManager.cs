@@ -14,25 +14,38 @@ public class ActivatedManager : MonoBehaviour
     public Vector3 newRotate;
     public Vector3 newScale;
 
-    private bool allActivated;
+    public float duration;
+    public Ease easeType;
+    public float delay;
+
+    public bool appearAtActivation;
+    public GameObject objToAppear;
+
+    public bool allActivatorsActivated;
+
+    public bool activated;
+    public bool animationComplete;
 
     void Start()
     {
-        
+        if (appearAtActivation)
+        {
+            objToAppear.SetActive(false);
+        }
     }
 
     void Update()
     {
         foreach (ActivatorManager activator in activators)
         {
-            allActivated = activator.activated;
+            allActivatorsActivated = activator.activated;
             if (!activator.activated)
             {
                 break;
             }
         }
 
-        if (allActivated)
+        if (allActivatorsActivated && !activated)
         {
             Activated();
         }
@@ -40,19 +53,31 @@ public class ActivatedManager : MonoBehaviour
 
     private void Activated()
     {
+        if (appearAtActivation)
+        {
+            objToAppear.SetActive(true);
+        }
+
         if (move)
         {
-            transform.DOLocalMove(newMove, 1.5f).SetEase(Ease.OutBounce).SetDelay(1f);
+            transform.DOLocalMove(newMove, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete;
         }
 
         if (rotate)
         {
-            transform.DOLocalRotate(newRotate, 1.5f).SetEase(Ease.OutBounce).SetDelay(1f);
+            transform.DOLocalRotate(newRotate, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete; ;
         }
 
         if (scale)
         {
-            transform.DOScale(newScale, 1.5f).SetEase(Ease.OutBounce).SetDelay(1f);
+            transform.DOScale(newScale, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete; ;
         }
+
+        activated = true;
+    }
+
+    private void AnimationComplete()
+    {
+        animationComplete = true;
     }
 }

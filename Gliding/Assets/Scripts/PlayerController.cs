@@ -208,13 +208,14 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity.y += normalGravityValue * Time.deltaTime;
             glidingCam.gameObject.SetActive(false);
-            gliding = false;
 
             // disable gliding trails
             foreach (GameObject trail in trails)
             {
                 trail.SetActive(false);
             }
+
+            gliding = false;
         }
 
         // apply gravity
