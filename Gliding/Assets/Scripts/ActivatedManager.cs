@@ -22,6 +22,9 @@ public class ActivatedManager : MonoBehaviour
     public GameObject objToAppear;
 
     public bool allActivatorsActivated;
+    public bool enemiesActivate;
+    public bool isIsland;
+    public SpawnerManager spawner;
 
     public bool activated;
     public bool animationComplete;
@@ -31,6 +34,11 @@ public class ActivatedManager : MonoBehaviour
         if (appearAtActivation)
         {
             objToAppear.SetActive(false);
+        }
+
+        if (isIsland)
+        {
+            transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
         }
     }
 
@@ -45,15 +53,20 @@ public class ActivatedManager : MonoBehaviour
             }
         }
 
-        if (allActivatorsActivated && !activated)
+        if ((allActivatorsActivated || (enemiesActivate && spawner.enemiesLeft.Count == 0 && spawner.count > 0)) && !activated)
         {
             Activated();
+        }
+
+        if (appearAtActivation && isIsland && animationComplete)
+        {
+            objToAppear.SetActive(true);
         }
     }
 
     private void Activated()
     {
-        if (appearAtActivation)
+        if (appearAtActivation && !isIsland)
         {
             objToAppear.SetActive(true);
         }
@@ -65,12 +78,12 @@ public class ActivatedManager : MonoBehaviour
 
         if (rotate)
         {
-            transform.DOLocalRotate(newRotate, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete; ;
+            transform.DOLocalRotate(newRotate, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete;
         }
 
         if (scale)
         {
-            transform.DOScale(newScale, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete; ;
+            transform.DOScale(newScale, duration).SetEase(easeType).SetDelay(delay).onComplete = AnimationComplete;
         }
 
         activated = true;

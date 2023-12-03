@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeMat: {fileID: 2100000, guid: 3066fc0cf8105214691cd5301218a08c, type: 2}
+  activated: 0
 --- !u!1 &5575613817842354409
 GameObject:
   m_ObjectHideFlags: 0

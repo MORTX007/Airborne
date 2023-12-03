@@ -54,6 +54,7 @@ public class PlayerController : MonoBehaviour
 
     // Gliding
     [Header("Gliding")]
+    public float normalGlidingSpeed;
     public float glidingSpeed;
     public float glidingHeight;
     public float glidingYOffset;
@@ -160,6 +161,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            glidingSpeed = normalGlidingSpeed;
             controller.Move(orientation.forward * glidingSpeed * Time.deltaTime);
         }
 

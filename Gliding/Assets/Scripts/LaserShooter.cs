@@ -144,7 +144,10 @@ public class LaserShooter : MonoBehaviour
 
         aimRig.weight = 1f;
 
-        aimLine.gameObject.SetActive(true);
+        if (!shooting)
+        {
+            aimLine.gameObject.SetActive(true);
+        }
 
         aimLine.SetPosition(0, head.position + aimLineOffset);
         aimLine.SetPosition(1, aimBalls[0].position);

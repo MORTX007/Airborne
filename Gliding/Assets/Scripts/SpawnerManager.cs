@@ -7,44 +7,66 @@ public class SpawnerManager : MonoBehaviour
     private PlayerController player;
 
     public int spawnNumber;
-    private int count;
+    public int count;
 
-    public float spawnWidth;
-    public float spawnLength;
+    public float maxSpawnWidth;
+    public float maxSpawnLength;
     public float height;
 
     public List<GameObject> enemies;
+    public List<GameObject> enemiesLeft;
 
-    public bool activated;
+    public bool waitForAnimation;
+    public bool animationComplete = true;
+    public bool activateReady;
 
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
+
+        if (waitForAnimation)
+        {
+            animationComplete = false;
+        }
     }
 
     void Update()
     {
-        if (activated && count < spawnNumber)
+        if (activateReady && count < spawnNumber && animationComplete)
         {
             Vector3 randPos = player.transform.position;
             while (Vector3.Distance(randPos, player.transform.position) < 2f)
             {
-                randPos = transform.position + new Vector3(Random.Range(-spawnWidth / 2, spawnWidth / 2),
+                randPos = transform.position + new Vector3(Random.Range(-maxSpawnWidth / 2, maxSpawnWidth / 2),
                                                    height,
-                                                   Random.Range(-spawnLength / 2, spawnLength / 2));
+                                                   Random.Range(-maxSpawnLength / 2, maxSpawnLength / 2));
             }
 
-            Instantiate(enemies[Random.Range(0, enemies.Count)], randPos, Quaternion.Euler(0, Random.Range(0f, 360f), 0));
+            enemiesLeft.Add(Instantiate(enemies[Random.Range(0, enemies.Count)], randPos, Quaternion.Euler(0, Random.Range(0f, 360f), 0)));
 
             count++;
+        }
+
+        for (int i = 0; i < enemiesLeft.Count; i++)
+        {
+            if (enemiesLeft[i] == null)
+            {
+                enemiesLeft.Remove(enemiesLeft[i]);
+                i--;
+            }
+        }
+
+        if (waitForAnimation && GetComponent<ActivatedManager>().animationComplete)
+        {
+            animationComplete = true;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (GetComponent<ActivatedManager>().animationComplete && other.CompareTag("Player") && !player.gliding)
+        if (other.CompareTag("Player") && !player.gliding)
         {
-            activated = true;
+            activateReady = true;
         }
     }
 }
