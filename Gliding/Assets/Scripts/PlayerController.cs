@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private float verticalInput;
     private Vector3 move;
-    private Vector3 playerVelocity;
+    public Vector3 playerVelocity;
     private bool moving;
     private bool grounded;
 
@@ -54,7 +54,6 @@ public class PlayerController : MonoBehaviour
 
     // Gliding
     [Header("Gliding")]
-    public float normalGlidingSpeed;
     public float glidingSpeed;
     public float glidingHeight;
     public float glidingYOffset;
@@ -124,7 +123,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (healthBarSlider.value == currentHealth)
         {
-            animateHealthBar = true;
+            animateHealthBar = false;
         }
 
         // check grounded
@@ -161,7 +160,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            glidingSpeed = normalGlidingSpeed;
             controller.Move(orientation.forward * glidingSpeed * Time.deltaTime);
         }
 
@@ -221,7 +219,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // apply gravity
-        controller.Move(playerVelocity * Time.deltaTime);
+        controller.Move(new Vector3(0f, playerVelocity.y, 0f) * Time.deltaTime);
     }
 
     private void RotatePlayer()
