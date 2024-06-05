@@ -1,15 +1,17 @@
 ﻿<Properties StartupConfiguration="{B2BACEDC-8A62-5D4C-8776-39C5D79AFA14}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/SpawnerManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/ActiveRagdollManager.cs">
     <Files>
-      <File FileName="Assets/Scripts/ActivatedManager.cs" Line="58" Column="25" />
-      <File FileName="Assets/Scripts/ActivatorManager.cs" />
-      <File FileName="Assets/Scripts/PlayerController.cs" Line="219" Column="10" />
+      <File FileName="Assets/Scripts/ConfigurableJointExtension.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/ActivatedManager.cs" Line="49" Column="1" />
+      <File FileName="Assets/Scripts/ActivatorManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/PlayerController.cs" Line="220" Column="1" />
       <File FileName="Assets/Scripts/EnemyManager.cs" />
       <File FileName="Assets/Scripts/LaserShooter.cs" Line="36" Column="35" />
       <File FileName="Assets/Scripts/LightWeightDroneManager.cs" />
       <File FileName="Assets/Scripts/LightWeightSpiderManager.cs" />
       <File FileName="Assets/Scripts/ProceduralWalkManager.cs" />
       <File FileName="Assets/Scripts/SpawnerManager.cs" Line="59" Column="1" />
+      <File FileName="Assets/Scripts/ActiveRagdollManager.cs" Line="5" Column="34" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // move
-        MovePlayer();
+        //MovePlayer();
 
         if (move.magnitude != 0)
         {
@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // player rotation
-        RotatePlayer();
+        //RotatePlayer();
 
         // jump
         if (Input.GetKeyDown(KeyCode.Space) && grounded)
@@ -127,7 +127,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // check grounded
-        CheckGrounded();
+        //CheckGrounded();
 
         // realistic fall
         if (!grounded && playerVelocity.y < 0 && !gliding)
