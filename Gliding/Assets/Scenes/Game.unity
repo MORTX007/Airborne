@@ -8576,6 +8576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &635439562 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8697756433503162418, guid: 1371d9fac030ea74fb894bb93f26f780,
@@ -8588,10 +8589,15 @@ Rigidbody:
 --- !u!1 &658749028
 GameObject:
 >>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
+=======
+--- !u!1 &658749028
+GameObject:
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_GameObject: {fileID: 635439562}
   serializedVersion: 4
@@ -8617,6 +8623,8 @@ GameObject:
 --- !u!153 &635439566
 ConfigurableJoint:
 =======
+=======
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   serializedVersion: 6
   m_Component:
   - component: {fileID: 658749029}
@@ -8632,11 +8640,15 @@ ConfigurableJoint:
   m_IsActive: 1
 --- !u!4 &658749029
 Transform:
+<<<<<<< HEAD
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
+=======
 >>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_GameObject: {fileID: 635439562}
   m_ConnectedBody: {fileID: 260101298}
@@ -8743,6 +8755,8 @@ GameObject:
 --- !u!136 &644233617
 CapsuleCollider:
 =======
+=======
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   m_GameObject: {fileID: 658749028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -8754,13 +8768,20 @@ CapsuleCollider:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &658749030
 BoxCollider:
+<<<<<<< HEAD
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
+=======
 >>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_GameObject: {fileID: 644233615}
+=======
+  m_GameObject: {fileID: 658749028}
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
 =======
   m_GameObject: {fileID: 658749028}
 >>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
@@ -8775,6 +8796,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
+<<<<<<< HEAD
 <<<<<<< HEAD
   serializedVersion: 2
   m_Radius: 0.16388984
@@ -8911,6 +8933,8 @@ ConfigurableJoint:
   m_MassScale: 1
   m_ConnectedMassScale: 1
 =======
+=======
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -8964,6 +8988,9 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 658749028}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+<<<<<<< HEAD
+>>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
+=======
 >>>>>>> parent of c870b40 (Commit Before Attempting Active Ragdoll Physics)
 --- !u!1 &658961416
 GameObject:
